@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:note/Model/note_model.dart';
 import 'package:intl/intl.dart';
+import 'package:note/Model/note_model.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
   final VoidCallback onPressed;
-  const NoteCard({super.key, required this.note, required this.onPressed});
+  final VoidCallback onArchive;
+
+  const NoteCard({
+    Key? key,
+    required this.note,
+    required this.onPressed,
+    required this.onArchive,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,43 +20,52 @@ class NoteCard extends StatelessWidget {
         ? note.updatedAt
         : note.createdAt;
 
-    String formattedDateTime = DateFormat('h:mma MMMM d, y').format(displayTime); 
+    String formattedDateTime = DateFormat('h:mma MMMM d, y').format(displayTime);
+
     return GestureDetector(
       onTap: onPressed,
       child: Card(
         color: Color(note.color),
+        margin: const EdgeInsets.all(8.0),
+        elevation: 5,
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 note.title,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    overflow: TextOverflow.ellipsis),
-              ),
-              Row(
-                children: [
-                  Container(),
-                  Spacer(),
-                  Text(
-                    formattedDateTime,
-                    style: TextStyle(
-                      fontSize: 12,
-
-                    ),
-                  )
-                ],
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               SizedBox(height: 5),
-              Flexible(
-                  child: Text(
-                note.note,
-                maxLines: 4,
-                style: TextStyle(fontSize: 17, overflow: TextOverflow.ellipsis),
-              ))
+              Text(
+                formattedDateTime,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                child: Text(
+                  note.note,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+              SizedBox(height: 10),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: IconButton(
+                  icon: const Icon(Icons.archive),
+                  onPressed: onArchive,
+                ),
+              ),
             ],
           ),
         ),

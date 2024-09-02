@@ -7,6 +7,7 @@ class Note{
   int color;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool archived;
 
   Note({
     required this.id,
@@ -15,6 +16,7 @@ class Note{
     this.color = 0xFFFFFFFF,
     required this.createdAt,
     required this.updatedAt,
+    this.archived = false,
   });
 }
 

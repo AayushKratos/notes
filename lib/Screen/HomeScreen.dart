@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:note/Model/note_model.dart';
+import 'package:note/Screen/archive.dart';
 import 'package:note/Screen/note_card.dart';
-import 'package:note/Screen/screen.dart';
+import 'package:note/Screen/screen.dart'; // Make sure you have this import
 
 class NotesHomeScreen extends StatefulWidget {
   const NotesHomeScreen({super.key});
@@ -12,32 +13,45 @@ class NotesHomeScreen extends StatefulWidget {
 }
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
-  final CollectionReference myNotes =
-      FirebaseFirestore.instance.collection('notes');
+  final CollectionReference myNotes = FirebaseFirestore.instance.collection('notes');
+
+  Stream<QuerySnapshot> getNotesStream() {
+    return myNotes.where('archived', isEqualTo: false).snapshots();
+  }
+
+  
+
+  void _archiveNote(String noteId) {
+    myNotes.doc(noteId).update({'archived': true});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: const Text(
-          "Notes App",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
-        ),
+        title: const Text('Notes App'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.archive),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ArchivedNotesScreen(), // Implement this screen
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder(
-        stream: myNotes.snapshots(),
+        stream: getNotesStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           final notes = snapshot.data!.docs;
@@ -59,6 +73,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                   createdAt: data['createdAt']?.toDate() ?? DateTime.now(),
                   updatedAt: data['updatedAt']?.toDate() ?? DateTime.now(),
                   color: data['color'] ?? 0xFFFFFFFF,
+                  archived: data['archived'] ?? false,
                 );
                 return NoteCard(
                   note: noteObject,
@@ -66,15 +81,16 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NoteScreen(note: noteObject),
+                        builder: (context) => NoteScreen(note: noteObject), // Implement NoteScreen
                       ),
                     );
                   },
+                  onArchive: () => _archiveNote(note.id),
                 );
               }
               return const SizedBox.shrink();
             },
-            padding: const EdgeInsets.all(3),
+            padding: const EdgeInsets.all(10),
           );
         },
       ),
@@ -96,11 +112,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           );
         },
         backgroundColor: Colors.blue,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-        tooltip: 'Add Note',
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
