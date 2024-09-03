@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:note/Model/note_model.dart';
 import 'package:note/Screen/archive.dart';
@@ -13,13 +14,16 @@ class NotesHomeScreen extends StatefulWidget {
 }
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
-  final CollectionReference myNotes = FirebaseFirestore.instance.collection('notes');
+  final CollectionReference myNotes =
+      FirebaseFirestore.instance.collection('notes');
 
   Stream<QuerySnapshot> getNotesStream() {
     return myNotes.where('archived', isEqualTo: false).snapshots();
   }
 
-  
+  signOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
 
   void _archiveNote(String noteId) {
     myNotes.doc(noteId).update({'archived': true});
@@ -37,11 +41,15 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ArchivedNotesScreen(), // Implement this screen
+                  builder: (context) =>
+                      ArchivedNotesScreen(), // Implement this screen
                 ),
               );
             },
           ),
+          SizedBox(width: 16),
+          IconButton(
+              onPressed: () => signOut(), icon: Icon(Icons.login_rounded))
         ],
       ),
       body: StreamBuilder(
@@ -81,7 +89,8 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NoteScreen(note: noteObject), // Implement NoteScreen
+                        builder: (context) => NoteScreen(
+                            note: noteObject), // Implement NoteScreen
                       ),
                     );
                   },
@@ -112,7 +121,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
           );
         },
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
