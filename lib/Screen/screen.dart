@@ -122,6 +122,7 @@ class _NoteScreenState extends State<NoteScreen> {
         'color': color,
         'createdAt': now,
         'archived': false,
+        'deleted': false
       });
     } else {
       await myNotes.doc(note.id).update({

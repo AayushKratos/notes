@@ -3,8 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:note/Model/note_model.dart';
 import 'package:note/Screen/archive.dart';
+import 'package:note/Screen/deleted.dart';
 import 'package:note/Screen/note_card.dart';
-import 'package:note/Screen/screen.dart'; // Make sure you have this import
+import 'package:note/Screen/screen.dart';
 
 class NotesHomeScreen extends StatefulWidget {
   const NotesHomeScreen({super.key});
@@ -18,7 +19,10 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       FirebaseFirestore.instance.collection('notes');
 
   Stream<QuerySnapshot> getNotesStream() {
-    return myNotes.where('archived', isEqualTo: false).snapshots();
+    return myNotes
+        .where('archived', isEqualTo: false)
+        .where('deleted', isEqualTo: false)
+        .snapshots();
   }
 
   signOut() async {
@@ -27,6 +31,13 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
 
   void _archiveNote(String noteId) {
     myNotes.doc(noteId).update({'archived': true});
+  }
+
+  void _deleteNote(String noteId) {
+    myNotes.doc(noteId).update({
+      'deleted': true,
+      'deletedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   @override
@@ -41,8 +52,19 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      ArchivedNotesScreen(), // Implement this screen
+                  builder: (context) => ArchivedNotesScreen(),
+                ),
+              );
+            },
+          ),
+          SizedBox(width: 16),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DeletedNotesScreen(),
                 ),
               );
             },
@@ -52,9 +74,61 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
               onPressed: () => signOut(), icon: Icon(Icons.login_rounded))
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Notes App',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.archive),
+              title: Text('Archived Notes'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ArchivedNotesScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete),
+              title: Text('Deleted Notes'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DeletedNotesScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                signOut();
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+          ],
+        ),
+      ),
       body: StreamBuilder(
         stream: getNotesStream(),
         builder: (context, snapshot) {
+          print(".......................................${snapshot.data!.docs}");
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -89,12 +163,12 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NoteScreen(
-                            note: noteObject), // Implement NoteScreen
+                        builder: (context) => NoteScreen(note: noteObject),
                       ),
                     );
                   },
                   onArchive: () => _archiveNote(note.id),
+                  onDelete: () => _deleteNote(note.id),
                 );
               }
               return const SizedBox.shrink();

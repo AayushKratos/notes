@@ -1,70 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:note/Model/note_model.dart';
 
 class NoteCard extends StatelessWidget {
   final Note note;
   final VoidCallback onPressed;
   final VoidCallback onArchive;
+  final VoidCallback onDelete;
 
   const NoteCard({
     Key? key,
     required this.note,
     required this.onPressed,
     required this.onArchive,
+    required this.onDelete,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    DateTime displayTime = note.updatedAt.isAfter(note.createdAt)
-        ? note.updatedAt
-        : note.createdAt;
-
-    String formattedDateTime = DateFormat('h:mma MMMM d, y').format(displayTime);
-
-    return GestureDetector(
-      onTap: onPressed,
-      child: Card(
-        color: Color(note.color),
-        margin: const EdgeInsets.all(8.0),
-        elevation: 5,
+    return Card(
+      color: Color(note.color),
+      child: InkWell(
+        onTap: onPressed,
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 note.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              SizedBox(height: 5),
-              Text(
-                formattedDateTime,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: Text(
-                  note.note,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-              SizedBox(height: 10),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  icon: const Icon(Icons.archive),
-                  onPressed: onArchive,
-                ),
+              SizedBox(height: 8),
+              Text(note.note),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.archive),
+                    onPressed: onArchive,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: onDelete,
+                  ),
+                ],
               ),
             ],
           ),

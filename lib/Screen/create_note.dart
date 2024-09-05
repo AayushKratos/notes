@@ -1,4 +1,6 @@
- import 'package:flutter/material.dart';
+ import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:note/Model/note_model.dart';
 
 class NoteCreationScreen extends StatefulWidget {
@@ -48,6 +50,7 @@ class _NoteCreationScreenState extends State<NoteCreationScreen> {
           IconButton(
             icon: Icon(Icons.save),
             onPressed: () {
+              log("................");
               saveNote();
               Navigator.pop(context);
             },
