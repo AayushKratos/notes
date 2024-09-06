@@ -8,6 +8,7 @@ class Note{
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool archived;
+  final bool deleted;
 
   Note({
     required this.id,
@@ -17,7 +18,34 @@ class Note{
     required this.createdAt,
     required this.updatedAt,
     this.archived = false,
+    this.deleted = false,
   });
+
+    Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'note': note,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'color': color,
+      'archived': archived ? 1 : 0,
+      'deleted': deleted ? 1 : 0,
+    };
+  }
+
+  static Note fromMap(Map<String, dynamic> map) {
+    return Note(
+      id: map['id'],
+      title: map['title'],
+      note: map['note'],
+      createdAt: DateTime.parse(map['createdAt']),
+      updatedAt: DateTime.parse(map['updatedAt']),
+      color: map['color'],
+      archived: map['archived'] == 1,
+      deleted: map['deleted'] == 1,
+    );
+  }
 }
 
 int generateRandomLightColor(){
