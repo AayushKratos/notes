@@ -5,7 +5,7 @@ class NoteCard extends StatelessWidget {
   final Note note;
   final VoidCallback onPressed;
   final VoidCallback onArchive;
-  final VoidCallback onDelete;
+  final VoidCallback onDelete; // This will be used for restoration
 
   const NoteCard({
     Key? key,
@@ -40,7 +40,7 @@ class NoteCard extends StatelessWidget {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
-                    onPressed: onDelete,
+                    onPressed: onDelete, // This will now handle restoration
                   ),
                 ],
               ),

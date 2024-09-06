@@ -2,19 +2,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:note/Model/note_model.dart';
 import 'package:note/Screen/note_card.dart';
-import 'package:note/Screen/screen.dart'; 
+import 'package:note/Screen/screen.dart';
 
-class DeletedNotesScreen extends StatelessWidget {
-  const DeletedNotesScreen({super.key});
+class DeletedNotesScreen extends StatefulWidget {
+  @override
+  _DeletedNotesScreenState createState() => _DeletedNotesScreenState();
+}
+
+class _DeletedNotesScreenState extends State<DeletedNotesScreen> {
+  final CollectionReference myNotes = FirebaseFirestore.instance.collection('notes');
+
+  Stream<QuerySnapshot> getDeletedNotesStream() {
+    return myNotes.where('deleted', isEqualTo: true).snapshots();
+  }
+
+  void _restoreNote(String noteId) {
+    myNotes.doc(noteId).update({
+      'deleted': false,
+      'deletedAt': null,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final CollectionReference myNotes = FirebaseFirestore.instance.collection('notes');
-
-    Stream<QuerySnapshot> getDeletedNotesStream() {
-      return myNotes.where('deleted', isEqualTo: true).snapshots();
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Deleted Notes'),
@@ -60,7 +70,8 @@ class DeletedNotesScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  onArchive: () {}, onDelete: () {},
+                  onArchive: () {},
+                  onDelete: () => _restoreNote(note.id), // Use restore action here
                 );
               }
               return const SizedBox.shrink();

@@ -17,6 +17,24 @@ class NotesHomeScreen extends StatefulWidget {
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
   final CollectionReference myNotes =
       FirebaseFirestore.instance.collection('notes');
+  User? user;
+  String? profilePicUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      setState(() {
+        user = currentUser;
+        profilePicUrl = user?.photoURL; // Assume photoURL is used for profile pictures
+      });
+    }
+  }
 
   Stream<QuerySnapshot> getNotesStream() {
     return myNotes
@@ -46,32 +64,25 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       appBar: AppBar(
         title: const Text('Notes App'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.archive),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ArchivedNotesScreen(),
-                ),
-              );
+          SizedBox(width: 16),
+          PopupMenuButton<String>(
+            icon: CircleAvatar(
+              backgroundImage: profilePicUrl != null
+                  ? NetworkImage(profilePicUrl!)
+                  : AssetImage('assets/default_profile_pic.png') as ImageProvider, // Fallback image
+              radius: 16,
+            ),
+            itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Text('Logout'),
+              ),
+            ],
+            onSelected: (value) { if (value == 'logout') {
+                signOut();
+              }
             },
           ),
-          SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DeletedNotesScreen(),
-                ),
-              );
-            },
-          ),
-          SizedBox(width: 16),
-          IconButton(
-              onPressed: () => signOut(), icon: Icon(Icons.login_rounded))
         ],
       ),
       drawer: Drawer(
@@ -128,7 +139,6 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
       body: StreamBuilder(
         stream: getNotesStream(),
         builder: (context, snapshot) {
-          print(".......................................${snapshot.data!.docs}");
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
