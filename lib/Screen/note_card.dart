@@ -5,7 +5,7 @@ class NoteCard extends StatelessWidget {
   final Note note;
   final VoidCallback onPressed;
   final VoidCallback onArchive;
-  final VoidCallback onDelete; // This will be used for restoration
+  final VoidCallback onDelete;
 
   const NoteCard({
     Key? key,
@@ -17,22 +17,29 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Color(note.color),
-      child: InkWell(
-        onTap: onPressed,
+    return GestureDetector(
+      onTap: onPressed,
+      child: Card(
+        color: Color(note.color),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                note.title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                note.title.isEmpty ? 'Untitled' : note.title,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
-              Text(note.note),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  note.note,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 4,
+                ),
+              ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     icon: Icon(Icons.archive),
@@ -40,7 +47,7 @@ class NoteCard extends StatelessWidget {
                   ),
                   IconButton(
                     icon: Icon(Icons.delete),
-                    onPressed: onDelete, // This will now handle restoration
+                    onPressed: onDelete,
                   ),
                 ],
               ),
