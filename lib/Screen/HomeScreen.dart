@@ -6,7 +6,7 @@ import 'package:note/Screen/archive.dart';
 import 'package:note/Screen/deleted.dart';
 import 'package:note/Screen/note_card.dart';
 import 'package:note/Screen/screen.dart';
-import 'package:note/services/database_services.dart';
+// import 'package:note/services/database_services.dart';
 
 class NotesHomeScreen extends StatefulWidget {
   const NotesHomeScreen({super.key});
@@ -17,7 +17,6 @@ class NotesHomeScreen extends StatefulWidget {
 
 class _NotesHomeScreenState extends State<NotesHomeScreen> {
 
-  final  DatabaseServices _databaseServices = DatabaseServices.instance;
   final CollectionReference myNotes =
       FirebaseFirestore.instance.collection('notes');
   User? user;
@@ -28,7 +27,7 @@ class _NotesHomeScreenState extends State<NotesHomeScreen> {
     super.initState();
     _fetchUserData();
   }
-
+  //profile ID
   Future<void> _fetchUserData() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {

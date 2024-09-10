@@ -7,7 +7,7 @@ class Note{
   int color;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final bool archived;
+  late final bool archived;
   final bool deleted;
 
   Note({
