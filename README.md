@@ -1,6 +1,6 @@
-# note
+# Notes app 
 
-A new Flutter project.
+Created notes app using flutter and firebase
 
 ## Getting Started
 
